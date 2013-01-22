@@ -40,32 +40,37 @@ def parseArticle(url):
     bbs_data = download(opener, url)
     result = html.fromstring(bbs_data.decode('cp949'))
 
-    num = result.cssselect('td.td_num')[0].text_content().strip()
+    try:
+        num = result.cssselect('td.td_num')[0].text_content().strip()
 
-    if len(result.cssselect('td.td_title img')) > 0:
-        result.cssselect('td.td_title img')[0].drop_tag()
-    title = result.cssselect('td.td_title')[0].text_content().strip()
+        if len(result.cssselect('td.td_title img')) > 0:
+            result.cssselect('td.td_title img')[0].drop_tag()
+        title = result.cssselect('td.td_title')[0].text_content().strip()
 
-    writer = result.cssselect('td.td_writer')[0].text_content().strip()
+        writer = result.cssselect('td.td_writer')[0].text_content().strip()
 
-    date = result.cssselect('td.td_date')[0].text_content().strip()
+        date = result.cssselect('td.td_date')[0].text_content().strip()
 
-    content = result.cssselect('#DocContent')[0]
-    content = etree.tostring(content, encoding=unicode).strip()
+        content = result.cssselect('#DocContent')[0]
+        content = etree.tostring(content, encoding=unicode).strip()
 
-    articlefile.write('%s,"%s","%s","%s","%s"\n' % (num, title.replace('"','\"'), writer.replace('"','\"'), date, content.replace('"','\"')))
-    print num 
+        articlefile.write('%s,"%s","%s","%s","%s"\n' % (num, title.replace('"','\"'), writer.replace('"','\"'), date, content.replace('"','\"')))
+        print num 
 
-    comments = result.cssselect('.CommentList tr')
-    for comment in comments:
-        comment_writer = comment.cssselect('td.nicname')[0].text_content().strip()
-        comment_date = comment.cssselect('span.day')[0].text_content().strip()
-        comment_node = comment.cssselect('td.cmtxt')[0]
-        map(lambda x:x.drop_tree(), comment_node.cssselect('span, a'))
-        comment_content = comment_node.text_content().strip()
+        comments = result.cssselect('.CommentList tr')
+        for comment in comments:
+            try:
+                comment_writer = comment.cssselect('td.nicname')[0].text_content().strip()
+                comment_date = comment.cssselect('span.day')[0].text_content().strip()
+                comment_node = comment.cssselect('td.cmtxt')[0]
+                map(lambda x:x.drop_tree(), comment_node.cssselect('span, a'))
+                comment_content = comment_node.text_content().strip()
 
-        commentfile.write('%s,"%s","%s","%s"\n' % (num, comment_writer.replace('"','\"'), comment_date, comment_content.replace('"','\"')))
-
+                commentfile.write('%s,"%s","%s","%s"\n' % (num, comment_writer.replace('"','\"'), comment_date, comment_content.replace('"','\"')))
+            except:
+                pass
+    except:
+        pass
 
 cj = cookielib.CookieJar()
 opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cj))
