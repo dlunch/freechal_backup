@@ -26,7 +26,7 @@ def download(opener, url, data = None):
             retry = retry + 1
             if retry > 3:
                 raise Exception
-
+reply = 0
 def parseList(url):
     page = 1
     while True:
@@ -37,13 +37,19 @@ def parseList(url):
         if len(items) == 0:
             break
         for item in items:
+            num = item.cssselect('td.td_num')[0].text_content()
+            try:
+                num = int(num)
+                reply = 0
+            except:
+                reply = reply + 1
             link = item.cssselect('td.td_title a')[0].get('href').strip()
             link = 'http://bbs.freechal.com/ComService/Activity/ABBS/' + link
-            parseArticle(link)
+            parseArticle(link, reply)
 
         page = page + 1 
 
-def parseArticle(url):
+def parseArticle(url, reply):
     bbs_data = download(opener, url)
     result = html.fromstring(bbs_data.decode('cp949'))
 
@@ -61,7 +67,7 @@ def parseArticle(url):
         content = result.cssselect('#DocContent')[0]
         content = etree.tostring(content, encoding=unicode).strip()
 
-        articlefile.write('%s,"%s","%s","%s","%s"\n' % (num, title.replace('"','\\"'), writer.replace('"','\\"'), date, content.replace('"','\\"')))
+        articlefile.write('%s, %s, "%s","%s","%s","%s"\n' % (num, reply, title.replace('"','\\"'), writer.replace('"','\\"'), date, content.replace('"','\\"')))
         print num 
 
         comments = result.cssselect('.CommentList tr')
@@ -73,7 +79,7 @@ def parseArticle(url):
                 map(lambda x:x.drop_tree(), comment_node.cssselect('span, a'))
                 comment_content = comment_node.text_content().strip()
 
-                commentfile.write('%s,"%s","%s","%s"\n' % (num, comment_writer.replace('"','\\"'), comment_date, comment_content.replace('"','\\"')))
+                commentfile.write('%s, %s, "%s","%s","%s"\n' % (num, reply, comment_writer.replace('"','\\"'), comment_date, comment_content.replace('"','\\"')))
             except:
                 pass
     except:
