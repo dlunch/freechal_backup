@@ -61,7 +61,7 @@ def parseArticle(url):
         content = result.cssselect('#DocContent')[0]
         content = etree.tostring(content, encoding=unicode).strip()
 
-        articlefile.write('%s,"%s","%s","%s","%s"\n' % (num, title.replace('"','\"'), writer.replace('"','\"'), date, content.replace('"','\"')))
+        articlefile.write('%s,"%s","%s","%s","%s"\n' % (num, title.replace('"','\\"'), writer.replace('"','\\"'), date, content.replace('"','\\"')))
         print num 
 
         comments = result.cssselect('.CommentList tr')
@@ -73,7 +73,7 @@ def parseArticle(url):
                 map(lambda x:x.drop_tree(), comment_node.cssselect('span, a'))
                 comment_content = comment_node.text_content().strip()
 
-                commentfile.write('%s,"%s","%s","%s"\n' % (num, comment_writer.replace('"','\"'), comment_date, comment_content.replace('"','\"')))
+                commentfile.write('%s,"%s","%s","%s"\n' % (num, comment_writer.replace('"','\\"'), comment_date, comment_content.replace('"','\\"')))
             except:
                 pass
     except:
