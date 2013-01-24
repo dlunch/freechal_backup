@@ -33,7 +33,7 @@ def parseList(url):
         bbs_data = download(opener, url + '&PageNo=' + str(page))
 
         result = html.fromstring(bbs_data.decode('cp949'))
-        items = result.cssselect('tr')
+        items = result.cssselect('table:not(.notice-list)>tr')
         if len(items) == 0:
             break
         for item in items:
