@@ -7,18 +7,25 @@ import codecs
 from config import freechal_id, freechal_password, freechal_board_url, article_filename, comment_filename
 
 def download(opener, url, data = None):
-    req = urllib2.Request(url)
-    if data:
-        req.add_data(urllib.urlencode(data))
-    urlfile = opener.open(req)
-
-    totalData = ''
+    retry = 0
     while True:
-        data = urlfile.read(1048576)
-        if not data:
-            break
-        totalData += data
-    return totalData.replace('\r\n','\n')
+        try:
+            req = urllib2.Request(url)
+            if data:
+                req.add_data(urllib.urlencode(data))
+            urlfile = opener.open(req)
+
+            totalData = ''
+            while True:
+                data = urlfile.read(1048576)
+                if not data:
+                    break
+                totalData += data
+            return totalData.replace('\r\n','\n')
+        except:
+            retry = retry + 1
+            if retry > 3:
+                raise Exception
 
 def parseList(url):
     page = 1
