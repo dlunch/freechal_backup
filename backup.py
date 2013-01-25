@@ -51,9 +51,9 @@ def parseList(url):
 
 def parseArticle(url, reply):
     bbs_data = download(opener, url)
-    result = html.fromstring(bbs_data.decode('cp949'))
 
     try:
+        result = html.fromstring(bbs_data.decode('cp949'))
         num = result.cssselect('td.td_num')[0].text_content().strip()
 
         if len(result.cssselect('td.td_title img')) > 0:
